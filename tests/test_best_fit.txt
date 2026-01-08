@@ -1,0 +1,9 @@
+init 500
+set best_fit
+malloc 100
+malloc 200
+malloc 50
+free 2
+malloc 180
+dump
+exit

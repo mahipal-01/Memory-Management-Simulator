@@ -1,0 +1,7 @@
+init 1024
+set buddy
+malloc 100
+malloc 200
+free 1
+stats
+exit

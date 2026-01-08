@@ -1,0 +1,11 @@
+init 500
+set worst_fit
+malloc 100
+malloc 200
+malloc 50
+free 2
+malloc 180
+malloc 20
+dump
+stats
+exit
