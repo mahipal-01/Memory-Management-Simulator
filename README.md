@@ -22,46 +22,77 @@ This project simulates fundamental OS memory management responsibilities, includ
 - Memory units represented as bytes for precise management
 - Full memory block tracking and visualization
 
+
 ### ✅ Feature 2: Memory Allocation Strategies
 Implements three fundamental allocation algorithms:
 - **First Fit**: Allocates in the first available free block large enough
 - **Best Fit**: Finds the smallest free block that fits the request
 - **Worst Fit**: Allocates in the largest available free block
+### Memory Allocation Strategy Details
+
+#### First Fit
+- **Time Complexity**: O(n) where n is number of blocks
+- **Space Efficiency**: Generally good but may fragment
+- **Use Case**: Quick allocation, moderate fragmentation
+- Implementation traverses free list until suitable block found
+
+#### Best Fit
+- **Time Complexity**: O(n) with full list traversal
+- **Space Efficiency**: Better than First Fit, reduces waste
+- **Use Case**: Optimized memory utilization
+- Implementation finds smallest block that satisfies request
+
+#### Worst Fit
+- **Time Complexity**: O(n) with full list traversal
+- **Space Efficiency**: May lead to fragmentation
+- **Use Case**: Keeping larger free blocks available
+- Implementation allocates from largest available block
 
 **Allocation Operations:**
-- `malloc(size)` - Allocate memory block
-- `free(address/block_id)` - Deallocate memory block
+- `malloc size` - Allocate memory block
+- `free block_id` - Deallocate memory block
 - Automatic block splitting when necessary
 - Block coalescing to reduce fragmentation
 
 ### ✅ Feature 3: Allocation Interface & Memory Visualization
 Command-line interface supporting:
-- `init memory [size]` - Initialize memory pool
-- `set allocator [first_fit|best_fit|worst_fit]` - Select allocation strategy
-- `malloc [size]` - Request memory allocation
-- `free [block_id]` - Release allocated block
-- `dump memory` - Visualize memory layout
+- `init memory size` - Initialize memory pool
+- `set allocator first_fit|best_fit|worst_fit` - Select allocation strategy
+- `malloc size` - Request memory allocation
+- `free block_id` - Release allocated block
+- `dump` - Visualize memory layout
 - `stats` - Display fragmentation and utilization statistics
 
 **Example Usage:**
 ```
 $ ./memsim
-> init memory 1024
-> set allocator first_fit
+> init 1024
+> set first_fit
 > malloc 100
-Allocated block id=1 at address=0x0000
+Allocated block id=1 at 0
 > malloc 200
-Allocated block id=2 at address=0x0064
-> free 1
-Block 1 freed and merged
-> dump memory
-[0x0000 - 0x0063] FREE
-[0x0064 - 0x012B] USED (id=2)
-[0x012C - 0x03FF] FREE
+Allocated block id=2 at 100
+> malloc 50
+Allocated block id=3 at 300
+> free 2
+Block 2 freed
+> dump
+[0 - 99] USED (id=1)
+[100 - 299] FREE
+[300 - 349] USED (id=3)
+[350 - 1023] FREE
 > stats
 Total memory: 1024
-Used memory: 200
-External fragmentation: 35%
+Used memory: 150
+Free memory: 874
+Memory utilization: 14.6484%
+Internal fragmentation: 0 bytes
+External fragmentation: 22.8833%
+Allocation success rate: 100%
+L1 hits/misses: 0/0
+L2 hits/misses: 0/0
+L1 miss -> L2: 0
+L2 miss -> Memory: 0
 ```
 
 ### ✅ Feature 4: Metrics and Statistics
@@ -72,9 +103,8 @@ Comprehensive performance metrics:
 - **Memory Utilization**: Percentage of memory in use vs. total
 
 ### ✅ Feature 5: Buddy Allocation System
-Power-of-two based memory allocation:
-- Memory size must be a power of two
-- Allocation automatically rounds up to nearest power of two
+Power-of-two-based memory allocation:
+- Allocation automatically rounds up to the nearest power of two
 - Maintains free lists for each block size
 - Supports recursive splitting of memory blocks
 - Efficient buddy coalescing for defragmentation
@@ -89,10 +119,10 @@ Power-of-two based memory allocation:
 #### Cache Configuration:
 - **Configurable size** per cache level
 - **Block size**: Cache line size (configurable)
-- **Associativity**: Direct-mapped or set-associative configurations
+- **Associativity**: set-associative configurations
 
 #### Cache Replacement Policy:
-- **FIFO (First-Come, First-Served)**: Evicts oldest cache entries
+- **LRU (Least Recently Used)**: pops the least recently used
 
 #### Performance Tracking:
 - Cache hits and misses per level
@@ -100,31 +130,16 @@ Power-of-two based memory allocation:
 - Miss penalty propagation to lower cache levels
 - Memory access latency modeling
 
-### ❌ Not Implemented
 
-- **Feature 7: Virtual Memory Simulation** - Paging not implemented
-- **Feature 8: Integration Between Components** - Virtual memory integration not implemented
 
 ## Project Architecture
 
 ```
 Memory-Management-Simulator/
 ├── src/
-│   ├── allocator/
-│   │   ├── allocator.h
-│   │   ├── first_fit.cpp
-│   │   ├── best_fit.cpp
-│   │   └── worst_fit.cpp
-│   ├── buddy/
-│   │   ├── buddy.h
-│   │   └── buddy.cpp
-│   ├── cache/
-│   │   ├── cache.h
-│   │   ├── l1_cache.cpp
-│   │   └── l2_cache.cpp
-│   ├── memory/
-│   │   ├── memory.h
-│   │   └── memory.cpp
+│   ├── allocator.cpp
+│   ├── buddy.cpp
+│   ├── cache.cpp
 │   └── main.cpp
 ├── include/
 │   ├── allocator.h
@@ -132,33 +147,16 @@ Memory-Management-Simulator/
 │   ├── cache.h
 │   └── memory.h
 ├── tests/
-│   ├── test_allocator.cpp
-│   └── test_cache.cpp
-├── docs/
-│   └── design_document.md
+│   ├── test_buddy.txt
+│   ├── test_first_fit.txt
+│   ├── test_wrost_fit.txt
+│   ├── test_best_fit.txt
+│   └── test_cache.txt
+├──document.pdf
 ├── Makefile
 └── README.md
 ```
 
-## Memory Allocation Strategy Details
-
-### First Fit
-- **Time Complexity**: O(n) where n is number of blocks
-- **Space Efficiency**: Generally good but may fragment
-- **Use Case**: Quick allocation, moderate fragmentation
-- Implementation traverses free list until suitable block found
-
-### Best Fit
-- **Time Complexity**: O(n) with full list traversal
-- **Space Efficiency**: Better than First Fit, reduces waste
-- **Use Case**: Optimized memory utilization
-- Implementation finds smallest block that satisfies request
-
-### Worst Fit
-- **Time Complexity**: O(n) with full list traversal
-- **Space Efficiency**: May lead to fragmentation
-- **Use Case**: Keeping larger free blocks available
-- Implementation allocates from largest available block
 
 ## Buddy Allocation System
 
@@ -173,16 +171,26 @@ The Buddy Allocation system provides efficient memory management:
 
 ### Example:
 ```
-Total Memory: 1024 (2^10)
-
-Initial: [1024 FREE]
-
-malloc(256): [256 USED][768 FREE]
-
-malloc(256): [256 USED][256 USED][512 FREE]
-
-free(first 256): [256 FREE][256 USED][512 FREE]
-                 → After coalescing: [512 FREE][256 USED][256 FREE]
+> init 1024
+> set buddy
+> malloc 100
+Allocated block id=1 at 0
+> malloc 200
+Allocated block id=2 at 256
+> malloc 300
+Allocated block id=3 at 512
+> stats
+Total memory: 1024
+Used memory: 896
+Free memory: 128
+Memory utilization: 87.5%
+Internal fragmentation: 296 bytes
+External fragmentation: 0%
+Allocation success rate: 100%
+L1 hits/misses: 0/0
+L2 hits/misses: 0/0
+L1 miss -> L2: 0
+L2 miss -> Memory: 0
 ```
 
 ## Cache Simulation Details
@@ -236,7 +244,7 @@ make all
 
 ### Running Tests
 ```bash
-make test
+make run_tests.sh
 ```
 
 ## Usage Examples
@@ -250,29 +258,32 @@ Memory initialized: 2048 bytes
 Allocator set to: BEST_FIT
 
 > malloc 512
-Allocated block id=1 at address=0x0000
+Allocated block id=1 at address=0
 
 > malloc 256
-Allocated block id=2 at address=0x0200
+Allocated block id=2 at address=512
 
-> dump memory
-[0x0000 - 0x01FF] USED (id=1, size=512)
-[0x0200 - 0x02FF] USED (id=2, size=256)
-[0x0300 - 0x07FF] FREE (size=1280)
+> dump
+[0 - 511] USED (id=1)
+[512 - 767] USED (id=2)
+[768 - 2047] FREE
 ```
 
 ### Fragmentation Analysis
 ```
 > stats
 === Memory Statistics ===
-Total Memory: 2048 bytes
-Used Memory: 768 bytes
-Free Memory: 1280 bytes
-Memory Utilization: 37.5%
-External Fragmentation: 15.2%
-Number of Free Blocks: 1
-Number of Used Blocks: 2
-Allocation Success Rate: 100%
+Total memory: 2048
+Used memory: 768
+Free memory: 1280
+Memory utilization: 37.5%
+Internal fragmentation: 0 bytes
+External fragmentation: 0%
+Allocation success rate: 100%
+L1 hits/misses: 0/0
+L2 hits/misses: 0/0
+L1 miss -> L2: 0
+L2 miss -> Memory: 0
 ```
 
 ### Buddy Allocation
@@ -283,45 +294,49 @@ Allocator set to: BUDDY
 > init memory 256
 Memory initialized with Buddy System: 256 bytes
 
-> malloc 32
-Allocated block id=1 at address=0x0000 (size=32)
+> malloc 33
+Allocated block id=1 at address=0 (size=32)
 
 > malloc 64
-Allocated block id=2 at address=0x0040 (size=64)
+Allocated block id=2 at address=64 (size=64)
 
 > stats
-Total Memory: 256 bytes
-Used Memory: 96 bytes
-Fragmentation: 4 blocks
+Total memory: 256
+Used memory: 128
+Free memory: 128
+Memory utilization: 50%
+Internal fragmentation: 31 bytes
+External fragmentation: 0%
+Allocation success rate: 100%
+L1 hits/misses: 0/0
+L2 hits/misses: 0/0
+L1 miss -> L2: 0
+L2 miss -> Memory: 0
 ```
 
 ### Cache Simulation
 ```
-> cache init l1 8192 64 4
-L1 Cache initialized: 8KB, block size 64B, 4-way associative
-
-> cache init l2 65536 64 2
-L2 Cache initialized: 64KB, block size 64B, 2-way associative
-
-> cache access read 0x1000
-L1 Hit (hot data)
-
-> cache access read 0x4000
-L1 Miss, L2 Hit
+init 512
+> access 10
+> access 10
+> access 64
+> access 64
+> access 128
+> stats
 
 > cache stats
 === Cache Statistics ===
-L1 Cache:
-  Total Accesses: 3
-  Hits: 1
-  Misses: 2
-  Hit Ratio: 33.33%
-
-L2 Cache:
-  Total Accesses: 2
-  Hits: 1
-  Misses: 1
-  Hit Ratio: 50.00%
+Total memory: 512
+Used memory: 0
+Free memory: 512
+Memory utilization: 0%
+Internal fragmentation: 0 bytes
+External fragmentation: 0%
+Allocation success rate: 0%
+L1 hits/misses: 2/3
+L2 hits/misses: 0/3
+L1 miss -> L2: 3
+L2 miss -> Memory: 3
 ```
 
 ## Design Decisions
@@ -336,18 +351,8 @@ L2 Cache:
 - **Calculation**: Tracks free block distribution to assess memory efficiency
 
 ### Cache Associativity
-- **Direct-Mapped**: Each memory location maps to exactly one cache location
 - **Set-Associative**: Memory locations can map to multiple locations within a set
-- **Trade-off**: Set-associative reduces conflicts but increases complexity
 
-## Limitations and Simplifications
-
-1. **No Virtual Memory**: Simulation does not implement paging or virtual-to-physical address translation
-2. **Single-Threaded**: No multi-threading or process isolation
-3. **Symbolic Disk Access**: Disk latency is not realistically modeled
-4. **Fixed Cache Block Size**: L1 and L2 share same block size for simplification
-5. **FIFO Replacement Only**: Advanced policies (LRU, LFU) not implemented
-6. **No Memory Protection**: No access control or permission checking
 
 ## Performance Characteristics
 
@@ -378,7 +383,6 @@ L2 Cache:
 
 2. **Algorithm Comparison**
    - First Fit vs Best Fit vs Worst Fit performance
-   - Fragmentation metrics comparison
    - Allocation failure scenarios
 
 3. **Buddy System Tests**
@@ -393,16 +397,7 @@ L2 Cache:
    - Multi-level access patterns
    - Performance metric accuracy
 
-## Future Enhancements
 
-- [ ] Implement LRU and LFU cache replacement policies
-- [ ] Add virtual memory simulation with paging
-- [ ] Support L3 cache hierarchy
-- [ ] Implement process isolation
-- [ ] Add detailed performance profiling
-- [ ] Create visual memory layout display
-- [ ] Support for cache write policies (write-back, write-through)
-- [ ] Implement TLB for virtual memory
 
 ## References and Resources
 
@@ -414,13 +409,7 @@ L2 Cache:
 - [Gate Smashers OS Playlist](https://youtube.com/playlist?list=PLxCzCOWd7aiGz9donHRrE9I3Mwn6XdP8p)
 - [GeeksForGeeks Operating Systems](https://www.geeksforgeeks.org/operating-systems/)
 
-## Evaluation Criteria
 
-- ✅ **Correctness**: All implemented algorithms function correctly
-- ✅ **Faithful Implementation**: Accurate modeling of allocation and cache behavior
-- ✅ **Code Quality**: Modular structure with clear separation of concerns
-- ✅ **Documentation**: Comprehensive code comments and design documentation
-- ✅ **Performance Analysis**: Detailed metrics and statistics collection
 
 ## License
 
